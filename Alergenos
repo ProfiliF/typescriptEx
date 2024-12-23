@@ -10,6 +10,11 @@ abstract class MenuItem {
 
   // Método abstracto para mostrar detalles del ítem
   abstract getDetails(): string;
+
+  // Método para aplicar un descuento al precio
+  applyDiscount(discountPercentage: number): void {
+    this.price -= this.price * (discountPercentage / 100);
+  }
 }
 
 // Clase concreta para Platos principales
@@ -26,6 +31,16 @@ class MainDish extends MenuItem {
     const allergenList = this.allergens.map((a) => a.name).join(", ") || "None";
     return `${this.name} - $${this.price.toFixed(2)}\nAllergens: ${allergenList}`;
   }
+
+  // Método para agregar un nuevo alérgeno
+  addAllergen(allergen: Allergen): void {
+    this.allergens.push(allergen);
+  }
+
+  // Método para listar alérgenos con alta severidad
+  getHighSeverityAllergens(): string[] {
+    return this.allergens.filter(a => a.severity === "high").map(a => a.name);
+  }
 }
 
 // Clase concreta para Bebidas
@@ -41,6 +56,11 @@ class Drink extends MenuItem {
   getDetails(): string {
     return `${this.name} - $${this.price.toFixed(2)}\nAlcoholic: ${this.isAlcoholic ? "Yes" : "No"}`;
   }
+
+  // Método para cambiar el estado de alcohol
+  toggleAlcoholic(): void {
+    this.isAlcoholic = !this.isAlcoholic;
+  }
 }
 
 // Clase para gestionar el Menú del Restaurante
@@ -54,6 +74,23 @@ class RestaurantMenu {
   showMenu(): void {
     console.log("--- Restaurant Menu ---");
     this.items.forEach((item) => console.log(item.getDetails()));
+  }
+
+  // Método para buscar ítems por nombre
+  findItemByName(name: string): MenuItem | undefined {
+    return this.items.find(item => item.name.toLowerCase() === name.toLowerCase());
+  }
+
+  // Método para eliminar un ítem por nombre
+  removeItemByName(name: string): boolean {
+    const initialLength = this.items.length;
+    this.items = this.items.filter(item => item.name.toLowerCase() !== name.toLowerCase());
+    return this.items.length < initialLength;
+  }
+
+  // Método para calcular el costo total del menú
+  calculateTotalCost(): number {
+    return this.items.reduce((total, item) => total + item.price, 0);
   }
 }
 
@@ -80,3 +117,19 @@ menu.addItem(juice);
 
 // Mostrar el Menú
 menu.showMenu();
+
+// Ejemplo de funcionalidades adicionales
+console.log("\n--- Applying Discount ---");
+steak.applyDiscount(10);
+console.log(steak.getDetails());
+
+console.log("\n--- Adding Allergen ---");
+salad.addAllergen({ name: "Fish", severity: "medium" });
+console.log(salad.getDetails());
+
+console.log("\n--- Removing Item ---");
+menu.removeItemByName("Craft Beer");
+menu.showMenu();
+
+console.log("\n--- Total Cost ---");
+console.log(`Total Menu Cost: $${menu.calculateTotalCost().toFixed(2)}`);
