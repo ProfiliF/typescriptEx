@@ -1,0 +1,82 @@
+// Interface para representar un Alérgeno
+interface Allergen {
+  name: string;
+  severity: "low" | "medium" | "high";
+}
+
+// Clase abstracta para un ítem genérico del menú
+abstract class MenuItem {
+  constructor(public name: string, public price: number) {}
+
+  // Método abstracto para mostrar detalles del ítem
+  abstract getDetails(): string;
+}
+
+// Clase concreta para Platos principales
+class MainDish extends MenuItem {
+  private allergens: Allergen[];
+
+  constructor(name: string, price: number, allergens: Allergen[]) {
+    super(name, price);
+    this.allergens = allergens;
+  }
+
+  // Implementación del método abstracto
+  getDetails(): string {
+    const allergenList = this.allergens.map((a) => a.name).join(", ") || "None";
+    return `${this.name} - $${this.price.toFixed(2)}\nAllergens: ${allergenList}`;
+  }
+}
+
+// Clase concreta para Bebidas
+class Drink extends MenuItem {
+  private isAlcoholic: boolean;
+
+  constructor(name: string, price: number, isAlcoholic: boolean) {
+    super(name, price);
+    this.isAlcoholic = isAlcoholic;
+  }
+
+  // Implementación del método abstracto
+  getDetails(): string {
+    return `${this.name} - $${this.price.toFixed(2)}\nAlcoholic: ${this.isAlcoholic ? "Yes" : "No"}`;
+  }
+}
+
+// Clase para gestionar el Menú del Restaurante
+class RestaurantMenu {
+  private items: MenuItem[] = [];
+
+  addItem(item: MenuItem): void {
+    this.items.push(item);
+  }
+
+  showMenu(): void {
+    console.log("--- Restaurant Menu ---");
+    this.items.forEach((item) => console.log(item.getDetails()));
+  }
+}
+
+// Crear objetos de Platos principales y Bebidas
+const steak = new MainDish("Grilled Steak", 20.99, [
+  { name: "Gluten", severity: "medium" },
+  { name: "Soy", severity: "low" },
+]);
+
+const salad = new MainDish("Caesar Salad", 10.99, [
+  { name: "Dairy", severity: "high" },
+  { name: "Egg", severity: "medium" },
+]);
+
+const beer = new Drink("Craft Beer", 5.99, true);
+const juice = new Drink("Orange Juice", 3.99, false);
+
+// Crear el Menú del Restaurante
+const menu = new RestaurantMenu();
+menu.addItem(steak);
+menu.addItem(salad);
+menu.addItem(beer);
+menu.addItem(juice);
+
+// Mostrar el Menú
+menu.showMenu();
